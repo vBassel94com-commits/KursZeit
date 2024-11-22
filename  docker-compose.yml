@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  # قاعدة البيانات PostgreSQL
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: kurszeitdb
+      POSTGRES_USER: kurszeituser
+      POSTGRES_PASSWORD: kurszeitpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # خدمة الدورة (Course Service)
+  course-service:
+    build:
+      context: .
+      dockerfile: ./course-service/Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/kurszeitdb
+      SPRING_DATASOURCE_USERNAME: kurszeituser
+      SPRING_DATASOURCE_PASSWORD: kurszeitpass
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - postgres
+    ports:
+      - "8081:8081"
+
+
+volumes:
+  postgres_data:
